@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <title>Introduction</title>
+    </properties>
+    <body>
+        <section name="Overview of the CAS module">
+
+            <subsection name="Introduction">
+            <p>
+                <img src="images/cas.jpg" />This module provides to the users an authentication with the CAS SSSO.
+            </p>
+            </subsection>
+
+            <subsection name="Prerequisites">
+            <p>
+                In order to follow this tutorial, a knowledge of SSO and in particular of the CAS solution is needed.
+            </p>
+            </subsection>
+        </section>
+
+        <section name="Definition of SSO">
+
+            <p>The SSO (Single Sign On) is a method allowing a user to proceed with only one authentication to access several protected applications </p>
+
+        </section>
+
+        <section name="Overview of authentication with CAS">
+            <subsection name="Introduction">
+
+            <p>CAS means "Central Authentication Service". This SSO System is developed by the Yale University.  
+            </p>
+
+            <p>CAS is based on exchange of tickets between the client browser, the authentication server and the protected application.
+            </p>
+
+            <p>The following schema illustrates how the CAS server manages the SSO authentication.
+                <center><img src="images/cas.png" /></center>
+                <pre>
+                1 : The client requests the protected application
+                2 : The client is redirected by the application towards the CAS server
+                3 : After the client authentication on CAS, it delivers a ticket and redirects the client towards the application
+                4 : The application reads the ticket and verifies it on CAS. 
+                </pre>
+            </p>
+
+            </subsection>
+
+        </section>
+
+        <section name="Deployment of a Lutece application protected by CAS module">
+
+The procedure to deploy an application protected by CAS is the following one :
+<ul>
+<li>deployment of the plugin mylutece and the module CAS in the application</li> 
+<li>setting of the module CAS : the mylutece-cas.role.name role defines in the properties file of the plugin makes it possible to restrict the access to the pages having this role to the users authenticated with CAS. </li>
+<li>setting of the server CAS (cf documentation on CAS))</li>        
+</ul>
+</section>
+
+
+
+    </body>
+</document>

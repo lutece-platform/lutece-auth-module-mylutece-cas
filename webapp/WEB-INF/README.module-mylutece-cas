@@ -1,0 +1,30 @@
+The following block should be added in the web.xml file in order to activate the CAS Client :
+For more information : http://www.ja-sig.org/products/cas/client/javaclient/
+
+----
+
+<filter>
+  <filter-name>CAS Validate Filter</filter-name>
+  <filter-class>edu.yale.its.tp.cas.client.filter.CASFilter</filter-class>
+  <init-param>
+    <param-name>edu.yale.its.tp.cas.client.filter.loginUrl</param-name>
+    <param-value>https://cas.paris.fr:1443/cas/login</param-value>
+  </init-param>
+  <init-param>
+    <param-name>edu.yale.its.tp.cas.client.filter.validateUrl</param-name>
+    <param-value>https://cas.paris.fr:1443/cas/serviceValidate</param-value>
+  </init-param>
+  <init-param>
+    <param-name>edu.yale.its.tp.cas.client.filter.serverName</param-name>
+    <param-value>portail.paris.fr:2443</param-value>
+  </init-param>
+  <init-param>
+    <param-name>edu.yale.its.tp.cas.client.filter.wrapRequest</param-name>
+    <param-value>true</param-value>
+  </init-param>
+</filter>
+
+<filter-mapping>
+  <filter-name>CAS Validate Filter</filter-name>
+  <url-pattern>/jsp/site/plugins/mylutece/DoMyLuteceLogin.jsp</url-pattern>
+</filter-mapping>

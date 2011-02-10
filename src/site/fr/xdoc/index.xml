@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <title>Introduction</title>
+    </properties>
+    <body>
+        <section name="Descriptif du module CAS pour MyLutece">
+            <subsection name="Introduction">
+                <img src="images/cas.jpg" />
+                <p>Ce module d'authentification pour MyLutece permet d'utiliser le serveur d'authentification CAS.</p> 
+            </subsection>
+        </section>
+    </body>
+</document>

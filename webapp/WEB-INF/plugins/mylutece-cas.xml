@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?><plug-in>
+	<name>mylutece-cas</name>
+	<class>fr.paris.lutece.plugins.mylutece.modules.cas.service.CASPlugin
+	</class>
+	<version>1.1.1</version>
+	<description>module.mylutece.cas.module.description</description>
+	<documentation/>
+	<installation/>
+	<changes/>
+	<user-guide/>
+	<provider>module.mylutece.cas.module.provider</provider>
+	<provider-url>http://lutece.paris.fr</provider-url>
+	<icon-url>images/admin/skin/plugins/mylutece/mylutece.png</icon-url>
+	<copyright>Copyright 2001-2009 Mairie de Paris</copyright>
+	<core-version-dependency>
+		<min-core-version>2.4.1</min-core-version>
+		<max-core-version/>
+	</core-version-dependency>
+
+	<!--
+		if the plugin must have a connection pool with parameter : 1 - yes, 0
+		- no
+	-->
+	<db-pool-required>0</db-pool-required>
+	<!-- http://www.ja-sig.org/products/cas/client/javaclient/ -->
+	<filters>
+		<filter>
+			<filter-name>CAS Authentication Filter</filter-name>
+			<filter-class>org.jasig.cas.client.authentication.AuthenticationFilter
+			</filter-class>
+			<init-param>
+				<param-name>casServerLoginUrl</param-name>
+				<param-value>https://localhost:8443/cas/login</param-value>
+			</init-param>
+			<init-param>
+				<param-name>serverName</param-name>
+				<param-value>https://localhost:8443</param-value>
+			</init-param>
+		</filter>
+		<filter>
+			<filter-name>CAS Validation Filter</filter-name>
+			<filter-class>org.jasig.cas.client.validation.Saml11TicketValidationFilter
+			</filter-class>
+			<init-param>
+				<param-name>casServerUrlPrefix</param-name>
+				<param-value>https://localhost:8443/cas</param-value>
+			</init-param>
+			<init-param>
+				<param-name>serverName</param-name>
+				<param-value>https://localhost:8443</param-value>
+			</init-param>
+		</filter>
+
+		<filter>
+			<filter-name>CAS HttpServletRequest Wrapper Filter</filter-name>
+			<filter-class>org.jasig.cas.client.util.HttpServletRequestWrapperFilter
+			</filter-class>
+		</filter>
+	</filters>
+</plug-in>
