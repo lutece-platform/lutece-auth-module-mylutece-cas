@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.mylutece.modules.cas.authentication;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -51,49 +52,73 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
 /**
- * The class provides an implementation of the inherited abstract class PortalAuthentication based on CAS
+ * The class provides an implementation of the inherited abstract class
+ * PortalAuthentication based on CAS
  * 
  */
-public class CASAuthentication extends PortalAuthentication
-{
+public class CASAuthentication extends PortalAuthentication {
 	// //////////////////////////////////////////////////////////////////////////////////////////////
 	// Constants
-	private static final String AUTH_SERVICE_NAME = AppPropertiesService.getProperty( "mylutece-cas.service.name" );
+	private static final String AUTH_SERVICE_NAME = AppPropertiesService
+			.getProperty("mylutece-cas.service.name");
 
-	/** default role can be used and will be added to all users*/
-	private static final String PROPERTY_DEFAULT_ROLE_NAME = AppPropertiesService.getProperty( "mylutece-cas.role.name" );
+	/** default role can be used and will be added to all users */
+	private static final String PROPERTY_DEFAULT_ROLE_NAME = AppPropertiesService
+			.getProperty("mylutece-cas.role.name");
 
 	/** user roles key */
 	private static final String PROPRETY_ATTRIBUTE_ROLES = "mylutece-cas.attributeRoles";
-
 	/** Attributs */
 	private static final String[] ATTRIBUTE_ROLES;
+	private static final Map<String, String> ATTRIBUTE_USER_MAPPING;
 
 	@Deprecated
-	private static final String ATTRIBUTE_KEY_DIRECTION = AppPropertiesService.getProperty( "mylutece-cas.attributeKeyDirection" );
-
-	private static final String ATTRIBUTE_KEY_USERNAME = AppPropertiesService.getProperty( "mylutece-cas.attributeKeyUsername" );
+	private static final String ATTRIBUTE_KEY_DIRECTION = AppPropertiesService
+			.getProperty("mylutece-cas.attributeKeyDirection");
+	private static final String ATTRIBUTE_KEY_USERNAME = AppPropertiesService
+			.getProperty("mylutece-cas.attributeKeyUsername");
+	/** Lutece User Attributs */
+	public static final String PROPERTY_USER_MAPPING_ATTRIBUTES = "mylutece-cas.userMappingAttributes";
+	/** Constants **/
+	public static final String CONSTANT_LUTECE_USER_PROPERTIES_PATH = "mylutece-cas.attribute";
 
 	private static final String SEPARATOR = ",";
 
-	static
-	{
-		String strAttributes = AppPropertiesService.getProperty( PROPRETY_ATTRIBUTE_ROLES );
-		if ( StringUtils.isNotBlank( strAttributes ) )
-		{
-			ATTRIBUTE_ROLES = strAttributes.split( SEPARATOR );
-		}
-		else
-		{
+	static {
+		String strAttributes = AppPropertiesService
+				.getProperty(PROPRETY_ATTRIBUTE_ROLES);
+		if (StringUtils.isNotBlank(strAttributes)) {
+			ATTRIBUTE_ROLES = strAttributes.split(SEPARATOR);
+		} else {
 			ATTRIBUTE_ROLES = new String[0];
+		}
+
+		String strUserMappingAttributes = AppPropertiesService
+				.getProperty(PROPERTY_USER_MAPPING_ATTRIBUTES);
+		ATTRIBUTE_USER_MAPPING = new HashMap<String, String>();
+		if (StringUtils.isNotBlank(strUserMappingAttributes)) {
+			String[] tabUserProperties = strUserMappingAttributes
+					.split(SEPARATOR);
+			String userPropertie;
+			for (int i = 0; i < tabUserProperties.length; i++) {
+
+				userPropertie = AppPropertiesService
+						.getProperty(CONSTANT_LUTECE_USER_PROPERTIES_PATH + "."
+								+ tabUserProperties[i]);
+				if (StringUtils.isNotBlank(userPropertie)) {
+
+					ATTRIBUTE_USER_MAPPING.put(userPropertie,
+							tabUserProperties[i]);
+				}
+			}
+
 		}
 	}
 
 	/**
 	 * Constructor
 	 */
-	public CASAuthentication()
-	{
+	public CASAuthentication() {
 		super();
 	}
 
@@ -102,67 +127,66 @@ public class CASAuthentication extends PortalAuthentication
 	 * 
 	 * @return The name of the authentication service
 	 */
-	public String getAuthServiceName()
-	{
+	public String getAuthServiceName() {
 		return AUTH_SERVICE_NAME;
 	}
 
 	/**
 	 * Gets the Authentication type
 	 * 
-	 * @param request The HTTP request
+	 * @param request
+	 *            The HTTP request
 	 * @return The type of authentication
 	 */
-	public String getAuthType( HttpServletRequest request )
-	{
+	public String getAuthType(HttpServletRequest request) {
 		return HttpServletRequest.BASIC_AUTH;
 	}
 
-	public LuteceUser login( String strUserName, String strUserPassword, HttpServletRequest request ) throws LoginException
-	{
+	public LuteceUser login(String strUserName, String strUserPassword,
+			HttpServletRequest request) throws LoginException {
 
-		return getHttpAuthenticatedUser( request );
+		return getHttpAuthenticatedUser(request);
 
 	}
 
 	/**
-	 * Returns a Lutece user object if the user is already authenticated by the WSSO
+	 * Returns a Lutece user object if the user is already authenticated by the
+	 * WSSO
 	 * 
-	 * @param request The HTTP request
+	 * @param request
+	 *            The HTTP request
 	 * @return Returns A Lutece User
 	 */
-	public LuteceUser getHttpAuthenticatedUser( HttpServletRequest request )
-	{
-		AttributePrincipal principal = ( AttributePrincipal ) request.getUserPrincipal();
+	public LuteceUser getHttpAuthenticatedUser(HttpServletRequest request) {
+		AttributePrincipal principal = (AttributePrincipal) request
+				.getUserPrincipal();
 
-		if ( principal != null )
-		{
-			String strDirection = ( String ) principal.getAttributes().get( ATTRIBUTE_KEY_DIRECTION );
-			String strCASUserLogin = ( String ) principal.getAttributes().get( ATTRIBUTE_KEY_USERNAME );
-			if ( strCASUserLogin != null )
-			{
-				CASUser user = new CASUser( strCASUserLogin, this );
+		if (principal != null) {
+			String strDirection = (String) principal.getAttributes().get(
+					ATTRIBUTE_KEY_DIRECTION);
+			String strCASUserLogin = (String) principal.getAttributes().get(
+					ATTRIBUTE_KEY_USERNAME);
+			if (strCASUserLogin != null) {
+				CASUser user = new CASUser(strCASUserLogin, this);
 				List<String> listRoles = new ArrayList<String>();
-				if ( StringUtils.isNotBlank( PROPERTY_DEFAULT_ROLE_NAME ) )
-				{
-					listRoles.add( PROPERTY_DEFAULT_ROLE_NAME );
+				if (StringUtils.isNotBlank(PROPERTY_DEFAULT_ROLE_NAME)) {
+					listRoles.add(PROPERTY_DEFAULT_ROLE_NAME);
 				}
 				// backward compatibility
-				if ( StringUtils.isNotBlank( strDirection ) )
-				{
-					listRoles.add( strDirection );
+				if (StringUtils.isNotBlank(strDirection)) {
+					listRoles.add(strDirection);
 				}
-				
-				addUserRoles( principal, listRoles );
-				user.setRoles( listRoles );
-				
-				addUserAttributes( principal, user );
+
+				addUserRoles(principal, listRoles);
+				user.setRoles(listRoles);
+
+				addUserAttributes(principal, user);
 
 				return user;
-			}
-			else
-			{
-				AppLogService.error( "Principal found, but not username attribute can be found for " + principal.getName() );
+			} else {
+				AppLogService
+						.error("Principal found, but not username attribute can be found for "
+								+ principal.getName());
 			}
 		}
 		return null;
@@ -171,41 +195,52 @@ public class CASAuthentication extends PortalAuthentication
 
 	/**
 	 * Adds user role, according to {@link #ATTRIBUTE_ROLES} keys
-	 * @param principal principal
-	 * @param roles the roles list
+	 * 
+	 * @param principal
+	 *            principal
+	 * @param roles
+	 *            the roles list
 	 */
-	private void addUserRoles( AttributePrincipal principal, List<String> roles )
-	{
-		for ( String strAttributeKey : ATTRIBUTE_ROLES )
-		{
-			roles.add( StringUtils.defaultString( ( String ) principal.getAttributes().get( strAttributeKey ) ) );
+	private void addUserRoles(AttributePrincipal principal, List<String> roles) {
+		for (String strAttributeKey : ATTRIBUTE_ROLES) {
+			roles.add(StringUtils.defaultString((String) principal
+					.getAttributes().get(strAttributeKey)));
 		}
 	}
 
 	/**
 	 * Add all principal attributes to the user
-	 * @param principal the principal
-	 * @param user the user
+	 * 
+	 * @param principal
+	 *            the principal
+	 * @param user
+	 *            the user
 	 */
-	private void addUserAttributes( AttributePrincipal principal, CASUser user )
-	{
-		for ( Entry<String, String> entry : ( ( Map<String, String> ) principal.getAttributes() ).entrySet() )
-		{
-			user.setUserInfo( entry.getKey(), entry.getValue() );
+	private void addUserAttributes(AttributePrincipal principal, CASUser user) {
+
+		for (Entry<String, String> entry : ((Map<String, String>) principal
+				.getAttributes()).entrySet()) {
+
+			if (ATTRIBUTE_USER_MAPPING.containsKey(entry.getKey())) {
+
+				user.setUserInfo(ATTRIBUTE_USER_MAPPING.get(entry.getKey()),
+						entry.getValue());
+			} else {
+				user.setUserInfo(entry.getKey(), entry.getValue());
+			}
 		}
 	}
 
 	/**
 	 * This methods logout the user
 	 * 
-	 * @param user The user
+	 * @param user
+	 *            The user
 	 */
-	public void logout( LuteceUser user )
-	{
+	public void logout(LuteceUser user) {
 	}
 
-	public String[] getRolesByUser( LuteceUser user )
-	{
+	public String[] getRolesByUser(LuteceUser user) {
 		return user.getRoles();
 	}
 
@@ -214,35 +249,34 @@ public class CASAuthentication extends PortalAuthentication
 	 * 
 	 * @return An anonymous Lutece user
 	 */
-	public LuteceUser getAnonymousUser()
-	{
-		return new CASUser( LuteceUser.ANONYMOUS_USERNAME, this );
+	public LuteceUser getAnonymousUser() {
+		return new CASUser(LuteceUser.ANONYMOUS_USERNAME, this);
 	}
 
 	/**
 	 * Checks that the current user is associated to a given role
 	 * 
-	 * @param user The user
-	 * @param request The HTTP request
-	 * @param strRole The role name
-	 * @return Returns true if the user is associated to the role, otherwise false
+	 * @param user
+	 *            The user
+	 * @param request
+	 *            The HTTP request
+	 * @param strRole
+	 *            The role name
+	 * @return Returns true if the user is associated to the role, otherwise
+	 *         false
 	 */
-	public boolean isUserInRole( LuteceUser user, HttpServletRequest request, String strRole )
-	{
+	public boolean isUserInRole(LuteceUser user, HttpServletRequest request,
+			String strRole) {
 
-		if ( ( user == null ) || ( strRole == null ) )
-		{
+		if ((user == null) || (strRole == null)) {
 			return false;
 		}
 
 		String[] roles = user.getRoles();
 
-		if ( roles != null )
-		{
-			for ( int i = 0; i < roles.length; i++ )
-			{
-				if ( strRole.equals( roles[i] ) )
-				{
+		if (roles != null) {
+			for (int i = 0; i < roles.length; i++) {
+				if (strRole.equals(roles[i])) {
 					return true;
 				}
 			}
@@ -253,10 +287,10 @@ public class CASAuthentication extends PortalAuthentication
 
 	/**
 	 * Returns true
+	 * 
 	 * @return true
 	 */
-	public boolean isExternalAuthentication()
-	{
+	public boolean isExternalAuthentication() {
 		return true;
 
 	}
@@ -265,8 +299,7 @@ public class CASAuthentication extends PortalAuthentication
 	 * 
 	 * {@inheritDoc}
 	 */
-	public String getName()
-	{
+	public String getName() {
 		return CASPlugin.PLUGIN_NAME;
 	}
 
@@ -274,8 +307,7 @@ public class CASAuthentication extends PortalAuthentication
 	 * 
 	 * {@inheritDoc}
 	 */
-	public String getPluginName()
-	{
+	public String getPluginName() {
 		return CASPlugin.PLUGIN_NAME;
 	}
 
