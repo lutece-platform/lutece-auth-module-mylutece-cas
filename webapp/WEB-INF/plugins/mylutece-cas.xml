@@ -30,11 +30,11 @@
 			</filter-class>
 			<init-param>
 				<param-name>casServerLoginUrl</param-name>
-				<param-value>https://cas.ressources.paris.mdp/login</param-value>
+				<param-value>https://localhost:8443/cas/login</param-value>
 			</init-param>
 			<init-param>
 				<param-name>serverName</param-name>
-				<param-value>http://10.100.32.77</param-value>
+				<param-value>https://localhost:8443</param-value>
 			</init-param>
 			<url-pattern>/jsp/site/*</url-pattern>
 		</filter>
@@ -44,11 +44,11 @@
 			</filter-class>
 			<init-param>
 				<param-name>casServerUrlPrefix</param-name>
-				<param-value>https://cas.ressources.paris.mdp</param-value>
+				<param-value>https://localhost:8443/cas</param-value>
 			</init-param>
 			<init-param>
 				<param-name>serverName</param-name>
-				<param-value>http://10.100.32.77</param-value>
+				<param-value>https://localhost:8443</param-value>
 			</init-param>
 			<url-pattern>/jsp/site/*</url-pattern>
 		</filter>
@@ -57,7 +57,6 @@
 			<filter-name>CAS HttpServletRequest Wrapper Filter</filter-name>
 			<filter-class>org.jasig.cas.client.util.HttpServletRequestWrapperFilter
 			</filter-class>
-			<url-pattern>/*</url-pattern>
 		</filter>
 	</filters>
 </plug-in>
