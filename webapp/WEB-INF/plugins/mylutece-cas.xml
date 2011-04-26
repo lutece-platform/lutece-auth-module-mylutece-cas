@@ -57,6 +57,7 @@
 			<filter-name>CAS HttpServletRequest Wrapper Filter</filter-name>
 			<filter-class>org.jasig.cas.client.util.HttpServletRequestWrapperFilter
 			</filter-class>
+			<url-pattern>/jsp/site/*</url-pattern>
 		</filter>
 	</filters>
 </plug-in>
