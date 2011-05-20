@@ -47,6 +47,7 @@ import org.jasig.cas.client.authentication.AttributePrincipal;
 
 import fr.paris.lutece.plugins.mylutece.authentication.PortalAuthentication;
 import fr.paris.lutece.plugins.mylutece.modules.cas.service.CASPlugin;
+import fr.paris.lutece.plugins.mylutece.modules.cas.service.ICASUserKeyService;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -72,6 +73,7 @@ public class CASAuthentication extends PortalAuthentication {
 	private static final String[] ATTRIBUTE_ROLES;
 	private static final Map<String, String> ATTRIBUTE_USER_MAPPING;
 
+
 	@Deprecated
 	private static final String ATTRIBUTE_KEY_DIRECTION = AppPropertiesService
 			.getProperty("mylutece-cas.attributeKeyDirection");
@@ -83,6 +85,8 @@ public class CASAuthentication extends PortalAuthentication {
 	public static final String CONSTANT_LUTECE_USER_PROPERTIES_PATH = "mylutece-cas.attribute";
 
 	private static final String SEPARATOR = ",";
+
+	private ICASUserKeyService cASUserKeyService;
 
 	static {
 		String strAttributes = AppPropertiesService
@@ -164,8 +168,9 @@ public class CASAuthentication extends PortalAuthentication {
 		if (principal != null) {
 			String strDirection = (String) principal.getAttributes().get(
 					ATTRIBUTE_KEY_DIRECTION);
-			String strCASUserLogin = (String) principal.getAttributes().get(
-					ATTRIBUTE_KEY_USERNAME);
+			String strCASUserLogin = cASUserKeyService.getKey(principal
+					.getAttributes().get(ATTRIBUTE_KEY_USERNAME));
+
 			if (strCASUserLogin != null) {
 				CASUser user = new CASUser(strCASUserLogin, this);
 				List<String> listRoles = new ArrayList<String>();
@@ -309,6 +314,14 @@ public class CASAuthentication extends PortalAuthentication {
 	 */
 	public String getPluginName() {
 		return CASPlugin.PLUGIN_NAME;
+	}
+
+	public ICASUserKeyService getCASUserKeyService() {
+		return cASUserKeyService;
+	}
+
+	public void setCASUserKeyService(ICASUserKeyService cASUserKeyService) {
+		this.cASUserKeyService = cASUserKeyService;
 	}
 
 }

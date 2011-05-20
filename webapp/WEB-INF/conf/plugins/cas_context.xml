@@ -2,6 +2,8 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-
-    <bean id="mylutece-cas.authentication" class="fr.paris.lutece.plugins.mylutece.modules.cas.authentication.CASAuthentication" />
-</beans>
+	<bean id="mylutece-cas.authentication" class="fr.paris.lutece.plugins.mylutece.modules.cas.authentication.CASAuthentication">
+		<property name="cASUserKeyService" ref="mylutece-cas.cASUserKeyService"/>
+	</bean>
+ 	<bean id="mylutece-cas.cASUserKeyService" class="fr.paris.lutece.plugins.mylutece.modules.cas.service.DefaultCASUserKeyService" />
+ </beans>
