@@ -74,9 +74,6 @@ public class CASAuthentication extends PortalAuthentication {
 	private static final Map<String, String> ATTRIBUTE_USER_MAPPING;
 
 
-	@Deprecated
-	private static final String ATTRIBUTE_KEY_DIRECTION = AppPropertiesService
-			.getProperty("mylutece-cas.attributeKeyDirection");
 	private static final String ATTRIBUTE_KEY_USERNAME = AppPropertiesService
 			.getProperty("mylutece-cas.attributeKeyUsername");
 	/** Lutece User Attributs */
@@ -166,22 +163,13 @@ public class CASAuthentication extends PortalAuthentication {
 				.getUserPrincipal();
 
 		if (principal != null) {
-			String strDirection = (String) principal.getAttributes().get(
-					ATTRIBUTE_KEY_DIRECTION);
-			String strCASUserLogin = cASUserKeyService.getKey(principal
-					.getAttributes().get(ATTRIBUTE_KEY_USERNAME));
-
+			String strCASUserLogin = cASUserKeyService.getKey(principal.getName(),principal.getAttributes().get(ATTRIBUTE_KEY_USERNAME));
 			if (strCASUserLogin != null) {
 				CASUser user = new CASUser(strCASUserLogin, this);
 				List<String> listRoles = new ArrayList<String>();
 				if (StringUtils.isNotBlank(PROPERTY_DEFAULT_ROLE_NAME)) {
 					listRoles.add(PROPERTY_DEFAULT_ROLE_NAME);
 				}
-				// backward compatibility
-				if (StringUtils.isNotBlank(strDirection)) {
-					listRoles.add(strDirection);
-				}
-
 				addUserRoles(principal, listRoles);
 				user.setRoles(listRoles);
 
