@@ -7,8 +7,71 @@
 		<section name="Module mylutece cas">
 			<subsection name="Introduction">
 				<img src="images/cas.jpg" />
-				<p>Ce module d'authentification pour MyLutece permet d'utiliser le
-					serveur d'authentification CAS.</p>
+				<p>Ce module permet de déléguer l’authentification des utilisateurs front office au service d’authentification CAS. 
+				   Il permet également de récupérer auprès du serveur CAS les informations concernant l’utilisateur authentifié. </p>
+			</subsection>
+			<subsection name="Configuration du module">
+				<subsection name="Configuration de L’authentification">
+					<p>
+						Dans le fichier <a href="http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/authentication/module-mylutece-cas/webapp/WEB-INF/plugins/mylutece-cas.xml"> webapp/WEB-INF/plugins/mylutece-cas.xml</a> les propriétés suivantes doivent être mises à jour 
+						<ul>
+							<li><strong>casServerUrlPrefix</strong>: Préfixe de la webapp du serveur CAS. Exemple : https://server-cas/cas </li>		
+							<li><strong>serverName</strong>: Adresse du serveur de l’application de la webapp Lutece. Exemple : https://localhost:8080 </li>
+							<li><strong>tolerance</strong>: tolérance admise entre l’heure de la webapp Lutece et l’heure du serveur CAS Exemple : 100000  </li>
+							<li><strong>exceptionOnValidationFailure</strong>: S'il faut lever une exception ou non en cas d'échec de validation des tickets. Exemple: false </li>
+						</ul>
+						
+					</p>
+					<p>
+						Dans le fichier <a href="http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/authentication/plugin-mylutece/webapp/WEB-INF/conf/plugins/mylutece.properties">webapp/WEB-INF/conf/plugins/mylutece.properties</a>
+					</p>	
+					<p>Il faut paramétrer la propriété mylutece.url.login.page en respectant le formalisme suivant</p>
+					<p>	
+						mylutece.url.login.page= https://<strong>casServerUrlPrefix</strong>/cas/login?service= <strong>serverName></strong> /<strong>webappName></strong>/jsp/site/plugins/mylutece/DoMyLuteceLogin.jsp?auth_provider=mylutece-cas 
+					</p>
+					<p>
+						Les propriétés <strong>casServerUrlPrefix,serverName</strong> doivent être identiques à celles préciser dans le fichier mylutece-cas.xml, la propriété webappName correspond elle au nom de la webapp Lutece.
+					</p>
+					<p>	
+						Exemple: https://cas.dev.ressources.paris.mdp/cas/login?service=http://localhost:8080/site-intraparis-toolbar/jsp/site/plugins/mylutece/DoMyLuteceLogin.jsp?auth_provider=mylutece-cas 
+					</p>
+				</subsection>
+				<subsection name="Configuration de la récupération des informations de l’utilisateur">
+					<p>
+						Le serveur CAS récupère les informations de l’utilisateur Authentifié et les stockent dans un objet appelé <strong>« Principal »</strong>.
+					</p>
+					<p>	
+					Les informations contenues dans cet objet dépendent de la configuration du serveur CAS et peuvent par exemple être le nom, prénom, l’email ou le service de l’utilisateur.
+					 Le module mylutece CAS permet de récupérer ces informations et de les stocker dans un objet <strong>« LuteceUser »</strong> représentant les données de l’utilisateur Front Office
+					</p>	
+					<p>	
+						Dans le fichier <a href="http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/authentication/module-mylutece-cas/webapp/WEB-INF/conf/plugins/mylutece-cas.properties" > webapp/WEB-INF/conf/plugins/mylutece-cas.properties</a> 
+					</p>
+					<p>
+						Les propriétés à configurer sont les suivantes 	
+					</p>		
+						<ul>
+							<li> 
+								<strong>mylutece-cas.attributeKeyUsername</strong> = nom de la propriété du « Principal » correspondant à la clef d’identification de l’objet « LuteceUser ». Cette propriété est obligatoire. Exemple:mylutece-cas.attributeKeyUsername=uid 
+								Dans ce cas la clef d’identification sera récupérée à partir la propriété uid du « Principal » 
+							</li>
+							<li>
+							    <strong>mylutece-cas.attributeRoles</strong>= noms séparés par des virgules des propriétés du « Principal » correspondants à des roles mylutece. Cette propriété est facultative. Exemple :
+							    <strong>mylutece-cas.attributeRoles</strong>=service
+								Dans ce cas l’utilisateur authentifié se verra associé le role mylutece contenu dans la valeur de la propriété service du « Principal ». 
+							</li>
+							<li>
+								mylutece-cas.userMappingAttributes liste des propriétés de l’objet « LuteceUser » dont les valeurs peuvent être récupérées du « Principal ». 
+								Exemple :
+								<ul>
+									<li>mylutece-cas.userMappingAttributes=user.name.given,user.name.family</li>
+									<li>mylutece-cas.attribute.user.name.given=prenom</li>
+									<li>mylutece-cas.attribute.user.name.family=nom</li>
+								</ul>
+								Dans ce cas les propriétés de l’objet « LuteceUser » user.name.given et user.name.family peuvent être récupéré du « Principal ». l’attribut du « Principal » contenant la propriété user.name.given doit alors être renseigné dans la propriété mylutece-cas.attribute.user.name.given, dans l’exemple ci-dessus c’est l’attribut prenom qui contiendra cette information. 
+							</li>
+						</ul>
+				</subsection>
 			</subsection>
 		</section>
 	</body>
