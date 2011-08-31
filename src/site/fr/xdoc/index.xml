@@ -25,12 +25,12 @@
 					<p>
 						Dans le fichier <a href="http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/authentication/plugin-mylutece/webapp/WEB-INF/conf/plugins/mylutece.properties">webapp/WEB-INF/conf/plugins/mylutece.properties</a>
 					</p>	
-					<p>Il faut paramétrer la propriété mylutece.url.login.page en respectant le formalisme suivant</p>
+					<p>Il faut paramétrer la propriété <strong>mylutece.url.login.page</strong> en respectant le formalisme suivant</p>
 					<p>	
-						mylutece.url.login.page= https://<strong>casServerUrlPrefix</strong>/cas/login?service= <strong>serverName></strong> /<strong>webappName></strong>/jsp/site/plugins/mylutece/DoMyLuteceLogin.jsp?auth_provider=mylutece-cas 
+						mylutece.url.login.page= https://<strong>casServerUrlPrefix</strong>/cas/login?service= <strong>serverName</strong> /<strong>webappName></strong>/jsp/site/plugins/mylutece/DoMyLuteceLogin.jsp?auth_provider=mylutece-cas 
 					</p>
 					<p>
-						Les propriétés <strong>casServerUrlPrefix,serverName</strong> doivent être identiques à celles préciser dans le fichier mylutece-cas.xml, la propriété webappName correspond elle au nom de la webapp Lutece.
+						Les propriétés <strong>casServerUrlPrefix,serverName</strong> doivent être identiques à celles préciser dans le fichier mylutece-cas.xml, la propriété <strong>webappName</strong> correspond elle au nom de la webapp Lutece.
 					</p>
 					<p>	
 						Exemple: https://cas.dev.ressources.paris.mdp/cas/login?service=http://localhost:8080/site-intraparis-toolbar/jsp/site/plugins/mylutece/DoMyLuteceLogin.jsp?auth_provider=mylutece-cas 
@@ -52,8 +52,11 @@
 					</p>		
 						<ul>
 							<li> 
-								<strong>mylutece-cas.attributeKeyUsername</strong> = nom de la propriété du « Principal » correspondant à la clef d’identification de l’objet « LuteceUser ». Cette propriété est obligatoire. Exemple:mylutece-cas.attributeKeyUsername=uid 
-								Dans ce cas la clef d’identification sera récupérée à partir la propriété uid du « Principal » 
+								<strong>mylutece-cas.attributeKeyUsername</strong> = nom de la propriété du « Principal » correspondant à la clef d’identification de l’objet « LuteceUser ». Cette propriété est obligatoire. 
+								<br/>
+								Exemple:mylutece-cas.attributeKeyUsername=uid 
+								<br/>
+								Dans ce cas la clef d’identification sera récupérée à partir de la propriété uid du « Principal » 
 							</li>
 							<li>
 							    <strong>mylutece-cas.attributeRoles</strong>= noms séparés par des virgules des propriétés du « Principal » correspondants à des roles mylutece. Cette propriété est facultative. Exemple :
