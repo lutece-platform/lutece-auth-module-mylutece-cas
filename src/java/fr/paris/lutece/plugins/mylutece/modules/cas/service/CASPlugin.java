@@ -35,22 +35,23 @@ package fr.paris.lutece.plugins.mylutece.modules.cas.service;
 
 import fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation;
 
+
 /**
- * 
+ *
  * CASPlugin
  */
 public class CASPlugin extends PluginDefaultImplementation
 {
-	public static final String PLUGIN_NAME = "mylutece-cas";
-	
-	/**
-	 * 
-	 *{@inheritDoc}
-	 */
-	@Override
-	public void init()
-	{
-		super.init();
-		CASService.getInstance(  ).init(  );
-	}
+    public static final String PLUGIN_NAME = "mylutece-cas";
+
+    /**
+     *
+     *{@inheritDoc}
+     */
+    @Override
+    public void init(  )
+    {
+        super.init(  );
+        CASService.getInstance(  ).init(  );
+    }
 }

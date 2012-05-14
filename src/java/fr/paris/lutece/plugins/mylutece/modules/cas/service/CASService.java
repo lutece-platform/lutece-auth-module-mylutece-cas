@@ -38,46 +38,49 @@ import fr.paris.lutece.plugins.mylutece.modules.cas.authentication.CASAuthentica
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
+
 /**
- * 
+ *
  * WebServerService
  */
 public final class CASService
 {
-	private static final String AUTHENTICATION_BEAN_NAME = "mylutece-cas.authentication";
-	private static final CASService _singleton = new CASService(  );
-	/**
-	 * Empty constructor
-	 */
-	private CASService(  )
-	{
-		// nothing
-	}
-	
-	/**
-	 * Gets the instance
-	 * @return the instance
-	 */
-	public static CASService getInstance(  )
-	{
-		return _singleton;
-	}
-	
-	/**
-	 * Inits plugin.
-	 * Registers authentication
-	 */
-	public void init(  )
-	{
-		CASAuthentication authentication = ( CASAuthentication ) SpringContextService.getPluginBean( CASPlugin.PLUGIN_NAME, 
-				AUTHENTICATION_BEAN_NAME );
-		if ( authentication != null )
-		{
-			MultiLuteceAuthentication.registerAuthentication( authentication );
-		}
-		else
-		{
-			AppLogService.error( "CASAuthentication not found, please check your cas_context.xml configuration" );
-		}
-	}
+    private static final String AUTHENTICATION_BEAN_NAME = "mylutece-cas.authentication";
+    private static final CASService _singleton = new CASService(  );
+
+    /**
+     * Empty constructor
+     */
+    private CASService(  )
+    {
+        // nothing
+    }
+
+    /**
+     * Gets the instance
+     * @return the instance
+     */
+    public static CASService getInstance(  )
+    {
+        return _singleton;
+    }
+
+    /**
+     * Inits plugin.
+     * Registers authentication
+     */
+    public void init(  )
+    {
+        CASAuthentication authentication = (CASAuthentication) SpringContextService.getPluginBean( CASPlugin.PLUGIN_NAME,
+                AUTHENTICATION_BEAN_NAME );
+
+        if ( authentication != null )
+        {
+            MultiLuteceAuthentication.registerAuthentication( authentication );
+        }
+        else
+        {
+            AppLogService.error( "CASAuthentication not found, please check your cas_context.xml configuration" );
+        }
+    }
 }
