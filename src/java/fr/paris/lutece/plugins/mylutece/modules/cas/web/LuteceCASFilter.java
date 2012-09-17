@@ -1,4 +1,4 @@
-package fr.paris.lutece.plugins.mylutece.modules.cas.service.web;
+package fr.paris.lutece.plugins.mylutece.modules.cas.web;
 
 import java.io.IOException;
 
@@ -48,7 +48,7 @@ public class LuteceCASFilter implements Filter
             CASAuthentication casAuthentication = (CASAuthentication) SpringContextService.getBean( "mylutece-cas.authentication" );
             try
             {
-                casAuthentication.login( "", "", request );
+                user = casAuthentication.login( "", "", request );
             } catch (LoginException e)
             {
                 AppLogService.error( e.getMessage( ), e );

@@ -49,6 +49,7 @@ import org.apache.commons.lang.StringUtils;
 
 import org.jasig.cas.client.authentication.AttributePrincipal;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +66,7 @@ import javax.servlet.http.HttpServletRequest;
  * PortalAuthentication based on CAS
  *
  */
-public class CASAuthentication extends PortalAuthentication
+public class CASAuthentication extends PortalAuthentication implements Serializable
 {
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // Constants
