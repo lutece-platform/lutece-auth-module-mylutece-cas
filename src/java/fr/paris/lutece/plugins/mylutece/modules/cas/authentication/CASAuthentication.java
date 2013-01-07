@@ -45,10 +45,6 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
-import org.apache.commons.lang.StringUtils;
-
-import org.jasig.cas.client.authentication.AttributePrincipal;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,8 +53,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.security.auth.login.LoginException;
-
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
+import org.jasig.cas.client.authentication.AttributePrincipal;
 
 
 /**
@@ -92,6 +90,8 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
 
     /** Constants **/
     public static final String CONSTANT_LUTECE_USER_PROPERTIES_PATH = "mylutece-cas.attribute";
+    public static final String CONSTANT_HTTP = "http://";
+    public static final String CONSTANT_HTTPS = "https://";
     private static final String SEPARATOR = ",";
 
     static
@@ -183,8 +183,12 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
                 }
             }
 
-            LoginRedirectException ex = new LoginRedirectException( AppPathService.getBaseUrl( request ) +
-                    strUrlErrorLoginPage );
+            if ( strUrlErrorLoginPage == null || !strUrlErrorLoginPage.startsWith( CONSTANT_HTTP )
+                    || !strUrlErrorLoginPage.startsWith( CONSTANT_HTTPS ) )
+            {
+                strUrlErrorLoginPage = AppPathService.getBaseUrl( request ) + strUrlErrorLoginPage;
+            }
+            LoginRedirectException ex = new LoginRedirectException( strUrlErrorLoginPage );
             throw ex;
         }
 
