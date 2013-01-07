@@ -183,8 +183,9 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
                 }
             }
 
-            if ( strUrlErrorLoginPage == null || !strUrlErrorLoginPage.startsWith( CONSTANT_HTTP )
-                    || !strUrlErrorLoginPage.startsWith( CONSTANT_HTTPS ) )
+            if ( strUrlErrorLoginPage == null
+                    || ( !strUrlErrorLoginPage.startsWith( CONSTANT_HTTP ) && !strUrlErrorLoginPage
+                            .startsWith( CONSTANT_HTTPS ) ) )
             {
                 strUrlErrorLoginPage = AppPathService.getBaseUrl( request ) + strUrlErrorLoginPage;
             }
