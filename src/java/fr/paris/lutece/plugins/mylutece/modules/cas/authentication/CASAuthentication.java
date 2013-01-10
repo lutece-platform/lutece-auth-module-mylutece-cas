@@ -73,9 +73,6 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     /** user roles key */
     private static final String PROPRETY_ATTRIBUTE_ROLES = "mylutece-cas.attributeRoles";
 
-    /** Attributs */
-    private static final String[] ATTRIBUTE_ROLES;
-    private static final Map<String, String> ATTRIBUTE_USER_MAPPING;
 
     /** Lutece User Attributs */
     public static final String PROPERTY_USER_MAPPING_ATTRIBUTES = "mylutece-cas.userMappingAttributes";
@@ -97,8 +94,18 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
 
     private String _strAttributeKeyUsername;
 
-    static
+    private ICASUserKeyService cASUserKeyService;
+
+    /** Attributs */
+    private String[] ATTRIBUTE_ROLES;
+    private Map<String, String> ATTRIBUTE_USER_MAPPING;
+
+    /**
+     * Constructor
+     */
+    public CASAuthentication( )
     {
+        super( );
         String strAttributes = AppPropertiesService.getProperty( PROPRETY_ATTRIBUTE_ROLES );
 
         if ( StringUtils.isNotBlank( strAttributes ) )
@@ -129,16 +136,6 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
                 }
             }
         }
-    }
-
-    private ICASUserKeyService cASUserKeyService;
-
-    /**
-     * Constructor
-     */
-    public CASAuthentication(  )
-    {
-        super(  );
     }
 
     /**
