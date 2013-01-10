@@ -68,10 +68,7 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
 {
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // Constants
-    private static final String AUTH_SERVICE_NAME = AppPropertiesService.getProperty( "mylutece-cas.service.name" );
 
-    /** default role can be used and will be added to all users */
-    private static final String PROPERTY_DEFAULT_ROLE_NAME = AppPropertiesService.getProperty( "mylutece-cas.role.name" );
 
     /** user roles key */
     private static final String PROPRETY_ATTRIBUTE_ROLES = "mylutece-cas.attributeRoles";
@@ -79,8 +76,6 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     /** Attributs */
     private static final String[] ATTRIBUTE_ROLES;
     private static final Map<String, String> ATTRIBUTE_USER_MAPPING;
-    private static final String ATTRIBUTE_KEY_USERNAME = AppPropertiesService.getProperty( 
-            "mylutece-cas.attributeKeyUsername" );
 
     /** Lutece User Attributs */
     public static final String PROPERTY_USER_MAPPING_ATTRIBUTES = "mylutece-cas.userMappingAttributes";
@@ -92,7 +87,15 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     public static final String CONSTANT_LUTECE_USER_PROPERTIES_PATH = "mylutece-cas.attribute";
     public static final String CONSTANT_HTTP = "http://";
     public static final String CONSTANT_HTTPS = "https://";
+
     private static final String SEPARATOR = ",";
+
+    private String _strAuthServiceName;
+
+    /** default role can be used and will be added to all users */
+    private String _strPropertyDefaultRoleName;
+
+    private String _strAttributeKeyUsername;
 
     static
     {
@@ -145,7 +148,11 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
      */
     public String getAuthServiceName(  )
     {
-        return AUTH_SERVICE_NAME;
+        if ( _strAuthServiceName == null )
+        {
+            _strAuthServiceName = AppPropertiesService.getProperty( "mylutece-cas.service.name" );
+        }
+        return _strAuthServiceName;
     }
 
     /**
@@ -211,16 +218,16 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
         if ( principal != null )
         {
             String strCASUserLogin = cASUserKeyService.getKey( principal.getName(  ),
-                    principal.getAttributes(  ).get( ATTRIBUTE_KEY_USERNAME ) );
+                    principal.getAttributes( ).get( getAttributeUsernameKey( ) ) );
 
             if ( strCASUserLogin != null )
             {
                 CASUser user = new CASUser( strCASUserLogin, this );
                 List<String> listRoles = new ArrayList<String>(  );
 
-                if ( StringUtils.isNotBlank( PROPERTY_DEFAULT_ROLE_NAME ) )
+                if ( StringUtils.isNotBlank( getDefaultRoleName( ) ) )
                 {
-                    listRoles.add( PROPERTY_DEFAULT_ROLE_NAME );
+                    listRoles.add( getDefaultRoleName( ) );
                 }
 
                 addUserRoles( principal, listRoles );
@@ -376,4 +383,31 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     {
         this.cASUserKeyService = cASUserKeyService;
     }
+
+    /**
+     * Get the default role name property
+     * @return The default role name property
+     */
+    private String getDefaultRoleName( )
+    {
+        if ( _strPropertyDefaultRoleName == null )
+        {
+            _strPropertyDefaultRoleName = AppPropertiesService.getProperty( "mylutece-cas.role.name" );
+        }
+        return _strPropertyDefaultRoleName;
+    }
+
+    /**
+     * Get the user name key attribute
+     * @return The user name key attribute
+     */
+    private String getAttributeUsernameKey( )
+    {
+        if ( _strAttributeKeyUsername == null )
+        {
+            _strAttributeKeyUsername = AppPropertiesService.getProperty( "mylutece-cas.attributeKeyUsername" );
+        }
+        return _strAttributeKeyUsername;
+    }
+
 }
