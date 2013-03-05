@@ -45,7 +45,12 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
+import org.apache.commons.lang.StringUtils;
+
+import org.jasig.cas.client.authentication.AttributePrincipal;
+
 import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,10 +58,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.security.auth.login.LoginException;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
-import org.jasig.cas.client.authentication.AttributePrincipal;
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -69,10 +72,8 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // Constants
 
-
     /** user roles key */
     private static final String PROPRETY_ATTRIBUTE_ROLES = "mylutece-cas.attributeRoles";
-
 
     /** Lutece User Attributs */
     public static final String PROPERTY_USER_MAPPING_ATTRIBUTES = "mylutece-cas.userMappingAttributes";
@@ -84,16 +85,12 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     public static final String CONSTANT_LUTECE_USER_PROPERTIES_PATH = "mylutece-cas.attribute";
     public static final String CONSTANT_HTTP = "http://";
     public static final String CONSTANT_HTTPS = "https://";
-
     private static final String SEPARATOR = ",";
-
     private String _strAuthServiceName;
 
     /** default role can be used and will be added to all users */
     private String _strPropertyDefaultRoleName;
-
     private String _strAttributeKeyUsername;
-
     private ICASUserKeyService cASUserKeyService;
 
     /** Attributs */
@@ -103,9 +100,10 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     /**
      * Constructor
      */
-    public CASAuthentication( )
+    public CASAuthentication(  )
     {
-        super( );
+        super(  );
+
         String strAttributes = AppPropertiesService.getProperty( PROPRETY_ATTRIBUTE_ROLES );
 
         if ( StringUtils.isNotBlank( strAttributes ) )
@@ -149,6 +147,7 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
         {
             _strAuthServiceName = AppPropertiesService.getProperty( "mylutece-cas.service.name" );
         }
+
         return _strAuthServiceName;
     }
 
@@ -187,12 +186,13 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
                 }
             }
 
-            if ( strUrlErrorLoginPage == null
-                    || ( !strUrlErrorLoginPage.startsWith( CONSTANT_HTTP ) && !strUrlErrorLoginPage
-                            .startsWith( CONSTANT_HTTPS ) ) )
+            if ( ( strUrlErrorLoginPage == null ) ||
+                    ( !strUrlErrorLoginPage.startsWith( CONSTANT_HTTP ) &&
+                    !strUrlErrorLoginPage.startsWith( CONSTANT_HTTPS ) ) )
             {
                 strUrlErrorLoginPage = AppPathService.getBaseUrl( request ) + strUrlErrorLoginPage;
             }
+
             LoginRedirectException ex = new LoginRedirectException( strUrlErrorLoginPage );
             throw ex;
         }
@@ -215,16 +215,16 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
         if ( principal != null )
         {
             String strCASUserLogin = cASUserKeyService.getKey( principal.getName(  ),
-                    principal.getAttributes( ).get( getAttributeUsernameKey( ) ) );
+                    principal.getAttributes(  ).get( getAttributeUsernameKey(  ) ) );
 
             if ( strCASUserLogin != null )
             {
                 CASUser user = new CASUser( strCASUserLogin, this );
                 List<String> listRoles = new ArrayList<String>(  );
 
-                if ( StringUtils.isNotBlank( getDefaultRoleName( ) ) )
+                if ( StringUtils.isNotBlank( getDefaultRoleName(  ) ) )
                 {
-                    listRoles.add( getDefaultRoleName( ) );
+                    listRoles.add( getDefaultRoleName(  ) );
                 }
 
                 addUserRoles( principal, listRoles );
@@ -270,15 +270,31 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
      */
     private void addUserAttributes( AttributePrincipal principal, CASUser user )
     {
-        for ( Entry<String, String> entry : ( (Map<String, String>) principal.getAttributes(  ) ).entrySet(  ) )
+        String strValue;
+
+        for ( Entry<String, Object> entry : ( (Map<String, Object>) principal.getAttributes(  ) ).entrySet(  ) )
         {
-            if ( ATTRIBUTE_USER_MAPPING.containsKey( entry.getKey(  ) ) )
+            strValue = null;
+
+            if ( entry.getValue(  ) instanceof String )
             {
-                user.setUserInfo( ATTRIBUTE_USER_MAPPING.get( entry.getKey(  ) ), entry.getValue(  ) );
+                strValue = (String) entry.getValue(  );
             }
-            else
+            else if ( entry.getValue(  ) instanceof List )
             {
-                user.setUserInfo( entry.getKey(  ), entry.getValue(  ) );
+                strValue = getValueAttributeMultivalued( entry );
+            }
+
+            if ( strValue != null )
+            {
+                if ( ATTRIBUTE_USER_MAPPING.containsKey( entry.getKey(  ) ) )
+                {
+                    user.setUserInfo( ATTRIBUTE_USER_MAPPING.get( entry.getKey(  ) ), strValue );
+                }
+                else
+                {
+                    user.setUserInfo( entry.getKey(  ), strValue );
+                }
             }
         }
     }
@@ -385,12 +401,13 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
      * Get the default role name property
      * @return The default role name property
      */
-    private String getDefaultRoleName( )
+    private String getDefaultRoleName(  )
     {
         if ( _strPropertyDefaultRoleName == null )
         {
             _strPropertyDefaultRoleName = AppPropertiesService.getProperty( "mylutece-cas.role.name" );
         }
+
         return _strPropertyDefaultRoleName;
     }
 
@@ -398,13 +415,42 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
      * Get the user name key attribute
      * @return The user name key attribute
      */
-    private String getAttributeUsernameKey( )
+    private String getAttributeUsernameKey(  )
     {
         if ( _strAttributeKeyUsername == null )
         {
             _strAttributeKeyUsername = AppPropertiesService.getProperty( "mylutece-cas.attributeKeyUsername" );
         }
+
         return _strAttributeKeyUsername;
     }
 
+    /**
+     * Get the value of an attribute multivalued
+     * @param entry the attribute multivalued
+     * @return the value of an attribute multivalued
+     */
+    private String getValueAttributeMultivalued( Entry<String, Object> entry )
+    {
+        List lValues = (List) entry.getValue(  );
+        StringBuffer strBuffer = new StringBuffer(  );
+        int ncpt = 1;
+
+        for ( Object oValue : lValues )
+        {
+            if ( oValue instanceof String )
+            {
+                strBuffer.append( (String) oValue );
+
+                if ( ncpt < lValues.size(  ) )
+                {
+                    strBuffer.append( SEPARATOR );
+                }
+
+                ncpt++;
+            }
+        }
+
+        return strBuffer.toString(  );
+    }
 }
