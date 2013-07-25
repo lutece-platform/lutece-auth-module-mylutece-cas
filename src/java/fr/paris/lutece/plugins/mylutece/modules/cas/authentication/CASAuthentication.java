@@ -52,6 +52,7 @@ import org.jasig.cas.client.authentication.AttributePrincipal;
 import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,12 +78,14 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
 
     /** Lutece User Attributs */
     public static final String PROPERTY_USER_MAPPING_ATTRIBUTES = "mylutece-cas.userMappingAttributes";
+    public static final String PROPERTY_ROLES_ASSOCIATIONS = "mylutece-cas.rolesAssociations";
     public static final String PROPERTY_URL_ERROR_LOGIN_PAGE = "mylutece-cas.urlErrorLoginPage";
     public static final String PROPERTY_BACK_URL_ERROR = "mylutece-cas.backUrlError";
     public static final String PROPERTY_MESSAGE_ERROR_LOGIN = "module.mylutece.cas.message.error.login";
 
     /** Constants **/
     public static final String CONSTANT_LUTECE_USER_PROPERTIES_PATH = "mylutece-cas.attribute";
+    public static final String CONSTANT_ROLE_ASSOCIATIONS_PATH = "mylutece-cas.roleAssociations";
     public static final String CONSTANT_HTTP = "http://";
     public static final String CONSTANT_HTTPS = "https://";
     private static final String SEPARATOR = ",";
@@ -96,6 +99,7 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     /** Attributs */
     private String[] ATTRIBUTE_ROLES;
     private Map<String, String> ATTRIBUTE_USER_MAPPING;
+    private Map<String, List<String>> ROLES_ASSOCIATIONS;
 
     /**
      * Constructor
@@ -131,6 +135,27 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
                 if ( StringUtils.isNotBlank( userPropertie ) )
                 {
                     ATTRIBUTE_USER_MAPPING.put( userPropertie, tabUserProperties[i] );
+                }
+            }
+        }
+        
+        String strRolesAssociations = AppPropertiesService.getProperty( PROPERTY_ROLES_ASSOCIATIONS );
+        ROLES_ASSOCIATIONS= new HashMap<String, List<String>>(  );
+
+        if ( StringUtils.isNotBlank( strRolesAssociations ) )
+        {
+            String[] tabRolesAssociations = strRolesAssociations.split( SEPARATOR );
+            String strRoleAssociations;
+
+            for ( int i = 0; i < tabRolesAssociations.length; i++ )
+            {
+            	strRoleAssociations = AppPropertiesService.getProperty( CONSTANT_ROLE_ASSOCIATIONS_PATH + "." +
+                        tabRolesAssociations[i] );
+
+                if ( StringUtils.isNotBlank( strRoleAssociations ) )
+                {
+                	List<String> listAssociations=Arrays.asList(strRoleAssociations.split(SEPARATOR));
+                	ROLES_ASSOCIATIONS.put( tabRolesAssociations[i],listAssociations  );
                 }
             }
         }
@@ -256,7 +281,30 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     {
         for ( String strAttributeKey : ATTRIBUTE_ROLES )
         {
-            roles.add( StringUtils.defaultString( (String) principal.getAttributes(  ).get( strAttributeKey ) ) );
+            
+        	
+        	Object attributeValue=principal.getAttributes(  ).get( strAttributeKey );
+        	 
+        	if ( attributeValue instanceof String )
+             {
+        		roles.add( (String)attributeValue );
+        		addRolesAssociated((String)attributeValue, roles);
+             }
+             else if ( attributeValue instanceof List )
+             { 
+	        	  for ( Object oValue : (List)attributeValue )
+	              {
+	                  if ( oValue instanceof String )
+	                  {
+	                	  roles.add( (String)oValue );
+	                	  addRolesAssociated((String)oValue, roles);
+	                  }
+	              }
+	               
+             }
+        	
+        	
+        	
         }
     }
 
@@ -282,7 +330,7 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
             }
             else if ( entry.getValue(  ) instanceof List )
             {
-                strValue = getValueAttributeMultivalued( entry );
+                strValue = getValueAttributeMultivalued( (List)entry.getValue() );
             }
 
             if ( strValue != null )
@@ -358,6 +406,11 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
 
         return false;
     }
+    
+    
+
+   
+    
 
     /**
      * Returns true
@@ -427,12 +480,12 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
 
     /**
      * Get the value of an attribute multivalued
-     * @param entry the attribute multivalued
+     * @param value the attribute value
      * @return the value of an attribute multivalued
      */
-    private String getValueAttributeMultivalued( Entry<String, Object> entry )
+    private String getValueAttributeMultivalued( List lValues)
     {
-        List lValues = (List) entry.getValue(  );
+      
         StringBuffer strBuffer = new StringBuffer(  );
         int ncpt = 1;
 
@@ -452,5 +505,18 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
         }
 
         return strBuffer.toString(  );
+    }
+    
+    /**
+     * Add in the list of roles the roles associated to the given role passed in parameter
+     * @param strRole the role 
+     * @param roles the roles list 
+     */
+    private void addRolesAssociated( String strRole ,List<String> roles  )
+    {
+    	if( ROLES_ASSOCIATIONS.containsKey(strRole))
+    	{
+    		roles.addAll(ROLES_ASSOCIATIONS.get(strRole));
+    	}
     }
 }
