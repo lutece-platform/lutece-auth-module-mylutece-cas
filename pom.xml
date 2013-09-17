@@ -9,7 +9,7 @@
 	<artifactId>module-mylutece-cas</artifactId>
 	<packaging>lutece-plugin</packaging>
 	<name>Lutece mylutece cas module</name>
-	<version>1.1.7</version>
+	<version>1.1.8-SNAPSHOT</version>
 	<description />
 
 	<repositories>
@@ -78,8 +78,8 @@
 	</properties>
 
 	<scm>
-		<connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/tags/module-mylutece-cas-1.1.7</connection>
-		<developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/tags/module-mylutece-cas-1.1.7</developerConnection>
-		<url>http://dev.lutece.paris.fr/viewvc/lutece/portal/tags/module-mylutece-cas-1.1.7</url>
+		<connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/authentication/module-mylutece-cas</connection>
+		<developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/authentication/module-mylutece-cas</developerConnection>
+		<url>http://dev.lutece.paris.fr/viewvc/lutece/portal/trunk/plugins/authentication/module-mylutece-cas</url>
 	</scm>
 </project>
