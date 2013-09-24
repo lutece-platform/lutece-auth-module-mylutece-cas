@@ -33,21 +33,10 @@
  */
 package fr.paris.lutece.plugins.mylutece.modules.cas.authentication;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.security.auth.login.LoginException;
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
-import org.jasig.cas.client.authentication.AttributePrincipal;
-
 import fr.paris.lutece.plugins.mylutece.authentication.PortalAuthentication;
+import fr.paris.lutece.plugins.mylutece.modules.cas.exception.CASAuthenticationException;
+import fr.paris.lutece.plugins.mylutece.modules.cas.exception.CASUserKeyEmptyException;
+import fr.paris.lutece.plugins.mylutece.modules.cas.exception.CASUserNotAuthorizedException;
 import fr.paris.lutece.plugins.mylutece.modules.cas.service.CASPlugin;
 import fr.paris.lutece.plugins.mylutece.modules.cas.service.ICASUserKeyService;
 import fr.paris.lutece.portal.service.message.SiteMessage;
@@ -58,6 +47,23 @@ import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+
+import org.apache.commons.lang.StringUtils;
+
+import org.jasig.cas.client.authentication.AttributePrincipal;
+
+import java.io.Serializable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.security.auth.login.LoginException;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -71,11 +77,11 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     // Constants
 
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -4537783302819258998L;
+         *
+         */
+    private static final long serialVersionUID = -4537783302819258998L;
 
-	/** user roles key */
+    /** user roles key */
     private static final String PROPRETY_ATTRIBUTE_ROLES = "mylutece-cas.attributeRoles";
 
     /** Lutece User Attributs */
@@ -85,7 +91,7 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     public static final String PROPERTY_URL_ERROR_LOGIN_PAGE = "mylutece-cas.urlErrorLoginPage";
     public static final String PROPERTY_BACK_URL_ERROR = "mylutece-cas.backUrlError";
     public static final String PROPERTY_MESSAGE_ERROR_LOGIN = "module.mylutece.cas.message.error.login";
-    
+
     /** Constants **/
     public static final String CONSTANT_LUTECE_USER_PROPERTIES_PATH = "mylutece-cas.attribute";
     public static final String CONSTANT_MANDATORY_ATTRIBUTE = "mylutece-cas.mandatoryAttribute";
@@ -105,7 +111,7 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     private Map<String, String> USER_MANDATORY_ATTRIBUTES;
     private Map<String, List<String>> ROLES_ASSOCIATIONS;
     private Map<String, String> ATTRIBUTE_USER_MAPPING;
-    
+
     /**
      * Constructor
      */
@@ -143,7 +149,7 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
                 }
             }
         }
-        
+
         String strUserMandatoryAttributes = AppPropertiesService.getProperty( PROPERTY_USER_MANDATORY_ATTRIBUTES );
         USER_MANDATORY_ATTRIBUTES = new HashMap<String, String>(  );
 
@@ -154,15 +160,14 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
 
             for ( int i = 0; i < tabUserMandatoryAttributes.length; i++ )
             {
-            	userMandatoryAttributes = AppPropertiesService.getProperty( CONSTANT_MANDATORY_ATTRIBUTE + "." +
-            			tabUserMandatoryAttributes[i] +".value");
-            	USER_MANDATORY_ATTRIBUTES.put( tabUserMandatoryAttributes[i], userMandatoryAttributes);
-                
+                userMandatoryAttributes = AppPropertiesService.getProperty( CONSTANT_MANDATORY_ATTRIBUTE + "." +
+                        tabUserMandatoryAttributes[i] + ".value" );
+                USER_MANDATORY_ATTRIBUTES.put( tabUserMandatoryAttributes[i], userMandatoryAttributes );
             }
         }
-        
+
         String strRolesAssociations = AppPropertiesService.getProperty( PROPERTY_ROLES_ASSOCIATIONS );
-        ROLES_ASSOCIATIONS= new HashMap<String, List<String>>(  );
+        ROLES_ASSOCIATIONS = new HashMap<String, List<String>>(  );
 
         if ( StringUtils.isNotBlank( strRolesAssociations ) )
         {
@@ -171,13 +176,13 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
 
             for ( int i = 0; i < tabRolesAssociations.length; i++ )
             {
-            	strRoleAssociations = AppPropertiesService.getProperty( CONSTANT_ROLE_ASSOCIATIONS_PATH + "." +
+                strRoleAssociations = AppPropertiesService.getProperty( CONSTANT_ROLE_ASSOCIATIONS_PATH + "." +
                         tabRolesAssociations[i] );
 
                 if ( StringUtils.isNotBlank( strRoleAssociations ) )
                 {
-                	List<String> listAssociations=Arrays.asList(strRoleAssociations.split(SEPARATOR));
-                	ROLES_ASSOCIATIONS.put( tabRolesAssociations[i],listAssociations  );
+                    List<String> listAssociations = Arrays.asList( strRoleAssociations.split( SEPARATOR ) );
+                    ROLES_ASSOCIATIONS.put( tabRolesAssociations[i], listAssociations );
                 }
             }
         }
@@ -209,43 +214,45 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     {
         return HttpServletRequest.BASIC_AUTH;
     }
-
+    
+    
+    @Override
     public LuteceUser login( String strUserName, String strUserPassword, HttpServletRequest request )
         throws LoginException, LoginRedirectException
     {
-        LuteceUser user = getHttpAuthenticatedUser( request );
+    	LuteceUser user=null;
+    	try {
+    			user=getCasAuthenticatedUser(request);
+			} catch (CASAuthenticationException e) {
+		
+			String strUrlErrorLoginPage = AppPropertiesService.getProperty( PROPERTY_URL_ERROR_LOGIN_PAGE );
+            String strBackUrlError = AppPropertiesService.getProperty( PROPERTY_BACK_URL_ERROR );
 
-        if ( user == null )
-        {
-        	 String strUrlErrorLoginPage = AppPropertiesService.getProperty( PROPERTY_URL_ERROR_LOGIN_PAGE );
-             String strBackUrlError = AppPropertiesService.getProperty( PROPERTY_BACK_URL_ERROR );
+            if ( StringUtils.isEmpty( strUrlErrorLoginPage ) )
+            {
+                try
+                {
+                    SiteMessageService.setMessage( request, PROPERTY_MESSAGE_ERROR_LOGIN, null, " ", null, "",
+                        SiteMessage.TYPE_STOP, null, strBackUrlError );
+                }
+                catch ( SiteMessageException lme )
+                {
+                    strUrlErrorLoginPage = SiteMessageService.setSiteMessageUrl( AppPathService.getPortalUrl(  ) );
+                }
+            }
 
-             if ( StringUtils.isEmpty( strUrlErrorLoginPage ) )
-             {
-                 try
-                 {
-                     SiteMessageService.setMessage( request, PROPERTY_MESSAGE_ERROR_LOGIN, null, " ", null, "",
-                         SiteMessage.TYPE_STOP, null, strBackUrlError );
-                 }
-                 catch ( SiteMessageException lme )
-                 {
-                     strUrlErrorLoginPage = SiteMessageService.setSiteMessageUrl( AppPathService.getPortalUrl(  ) );
-                 }
-             }
+            if ( ( strUrlErrorLoginPage == null ) ||
+                    ( !strUrlErrorLoginPage.startsWith( CONSTANT_HTTP ) &&
+                    !strUrlErrorLoginPage.startsWith( CONSTANT_HTTPS ) ) )
+            {
+                strUrlErrorLoginPage = AppPathService.getBaseUrl( request ) + strUrlErrorLoginPage;
+            }
 
-             if ( ( strUrlErrorLoginPage == null ) ||
-                     ( !strUrlErrorLoginPage.startsWith( CONSTANT_HTTP ) &&
-                     !strUrlErrorLoginPage.startsWith( CONSTANT_HTTPS ) ) )
-             {
-                 strUrlErrorLoginPage = AppPathService.getBaseUrl( request ) + strUrlErrorLoginPage;
-             }
+            LoginRedirectException ex = new LoginRedirectException( strUrlErrorLoginPage );
+            throw ex;
+		}
 
-             LoginRedirectException ex = new LoginRedirectException( strUrlErrorLoginPage );
-             throw ex;
-         }
-
-        
-
+      
         return user;
     }
 
@@ -258,6 +265,29 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
      * @return Returns A Lutece User
      */
     public LuteceUser getHttpAuthenticatedUser( HttpServletRequest request )
+    {
+    	LuteceUser user=null;
+    	try {
+    		user=getCasAuthenticatedUser(request);
+		} catch (CASAuthenticationException e) {
+		
+		}
+	
+		 
+    	return user;
+    }
+    
+    
+    
+    /**
+     * Returns a user object if the user is already authenticated by the
+     * Cas
+     *
+     * @param request
+     *            The HTTP request
+     * @return Returns A Lutece User
+     */
+    private LuteceUser getCasAuthenticatedUser( HttpServletRequest request )throws CASAuthenticationException
     {
         AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal(  );
 
@@ -281,27 +311,25 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
 
                 addUserAttributes( principal, user );
 
-                if(isAuthorized(user))
+                if ( !isAuthorized( user ) )
                 {
-                	AppLogService.debug( "Principal found, but user not Authorized" +
-                            principal.getName(  ) );
-                	return user;
+                	AppLogService.debug( "Principal found, but user not Authorized" + principal.getName(  ) );
+                    throw new CASUserNotAuthorizedException();
                 	
                 }
-                else
-                {
-                	return null;
-                }
+                return user;
             }
             else
             {
                 AppLogService.error( "Principal found, but not username attribute can be found for " +
                     principal.getName(  ) );
+                throw new CASUserKeyEmptyException();
             }
         }
 
         return null;
     }
+    
 
     /**
      * Adds user role, according to {@link #ATTRIBUTE_ROLES} keys
@@ -315,30 +343,24 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
     {
         for ( String strAttributeKey : ATTRIBUTE_ROLES )
         {
-            
-        	
-        	Object attributeValue=principal.getAttributes(  ).get( strAttributeKey );
-        	 
-        	if ( attributeValue instanceof String )
-             {
-        		roles.add( (String)attributeValue );
-        		addRolesAssociated((String)attributeValue, roles);
-             }
-             else if ( attributeValue instanceof List )
-             { 
-	        	  for ( Object oValue : (List)attributeValue )
-	              {
-	                  if ( oValue instanceof String )
-	                  {
-	                	  roles.add( (String)oValue );
-	                	  addRolesAssociated((String)oValue, roles);
-	                  }
-	              }
-	               
-             }
-        	
-        	
-        	
+            Object attributeValue = principal.getAttributes(  ).get( strAttributeKey );
+
+            if ( attributeValue instanceof String )
+            {
+                roles.add( (String) attributeValue );
+                addRolesAssociated( (String) attributeValue, roles );
+            }
+            else if ( attributeValue instanceof List )
+            {
+                for ( Object oValue : (List) attributeValue )
+                {
+                    if ( oValue instanceof String )
+                    {
+                        roles.add( (String) oValue );
+                        addRolesAssociated( (String) oValue, roles );
+                    }
+                }
+            }
         }
     }
 
@@ -364,7 +386,7 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
             }
             else if ( entry.getValue(  ) instanceof List )
             {
-                strValue = getValueAttributeMultivalued( (List)entry.getValue() );
+                strValue = getValueAttributeMultivalued( (List) entry.getValue(  ) );
             }
 
             if ( strValue != null )
@@ -440,11 +462,6 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
 
         return false;
     }
-    
-    
-
-   
-    
 
     /**
      * Returns true
@@ -517,9 +534,8 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
      * @param value the attribute value
      * @return the value of an attribute multivalued
      */
-    private String getValueAttributeMultivalued( List lValues)
+    private String getValueAttributeMultivalued( List lValues )
     {
-      
         StringBuffer strBuffer = new StringBuffer(  );
         int ncpt = 1;
 
@@ -540,48 +556,40 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
 
         return strBuffer.toString(  );
     }
-    
+
     /**
      * Add in the list of roles the roles associated to the given role passed in parameter
-     * @param strRole the role 
-     * @param roles the roles list 
+     * @param strRole the role
+     * @param roles the roles list
      */
-    private void addRolesAssociated( String strRole ,List<String> roles  )
+    private void addRolesAssociated( String strRole, List<String> roles )
     {
-    	if( ROLES_ASSOCIATIONS.containsKey(strRole))
-    	{
-    		roles.addAll(ROLES_ASSOCIATIONS.get(strRole));
-    	}
+        if ( ROLES_ASSOCIATIONS.containsKey( strRole ) )
+        {
+            roles.addAll( ROLES_ASSOCIATIONS.get( strRole ) );
+        }
     }
-    
+
     /**
-     * return true if the user  is Authorized to be authenticate depending the mandatory attributes 
+     * return true if the user  is Authorized to be authenticate depending the mandatory attributes
      * @param user LuteceUser
-     * @return true if the user is Authorized to be authenticate depending the mandatory attributes 
+     * @return true if the user is Authorized to be authenticate depending the mandatory attributes
      */
-    private boolean isAuthorized(LuteceUser user)
+    private boolean isAuthorized( LuteceUser user )
     {
-    	if(!USER_MANDATORY_ATTRIBUTES.isEmpty())
-    	{
-    		for ( Entry<String, String> entry : ( USER_MANDATORY_ATTRIBUTES ).entrySet(  ) )
-    		{
-    			
-    			if( (StringUtils.isEmpty(user.getUserInfo(entry.getKey()))) || (!StringUtils.isEmpty(entry.getValue())&& !entry.getValue().equals(user.getUserInfo(entry.getKey()))))
-    			{
-    				return false;
-    			}
-    			
-    			
-    		}
-    			
-    		
-    	}
-    	
-    	return true;
-    	
+        if ( !USER_MANDATORY_ATTRIBUTES.isEmpty(  ) )
+        {
+            for ( Entry<String, String> entry : ( USER_MANDATORY_ATTRIBUTES ).entrySet(  ) )
+            {
+                if ( ( StringUtils.isEmpty( user.getUserInfo( entry.getKey(  ) ) ) ) ||
+                        ( !StringUtils.isEmpty( entry.getValue(  ) ) &&
+                        !entry.getValue(  ).equals( user.getUserInfo( entry.getKey(  ) ) ) ) )
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
-    
-  
-    
-    
 }

@@ -91,9 +91,19 @@
 			<url-pattern>
 				/jsp/site/*
 			</url-pattern>
+		</filter>
+		<filter>
+				<filter-name>
+					CAS Lutece Filter
+				</filter-name>
+				<filter-class>
+					fr.paris.lutece.plugins.mylutece.modules.cas.web.LuteceCASFilter
+				</filter-class>
+				<url-pattern>
+					/jsp/site/*
+				</url-pattern>
 		</filter>	
-			
-	</filters>
+		</filters>
 	<listeners>
 		<listener>
   	 			<listener-class>org.jasig.cas.client.session.SingleSignOutHttpSessionListener</listener-class>
