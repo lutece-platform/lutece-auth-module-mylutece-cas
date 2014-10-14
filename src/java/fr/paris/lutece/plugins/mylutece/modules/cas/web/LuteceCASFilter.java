@@ -34,16 +34,20 @@
 package fr.paris.lutece.plugins.mylutece.modules.cas.web;
 
 import fr.paris.lutece.plugins.mylutece.modules.cas.authentication.CASAuthentication;
+import fr.paris.lutece.portal.service.message.SiteMessage;
+import fr.paris.lutece.portal.service.message.SiteMessageException;
+import fr.paris.lutece.portal.service.message.SiteMessageService;
 import fr.paris.lutece.portal.service.security.LoginRedirectException;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.SecurityService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.service.util.AppPathService;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 import javax.security.auth.login.LoginException;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -51,6 +55,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.jasig.cas.client.authentication.DefaultGatewayResolverImpl;
 
 
 /**
@@ -58,6 +65,29 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class LuteceCASFilter implements Filter
 {
+    
+    /**
+     * Filter parameter that, if present, indicates that a message should be displayed
+     * if cookies are not supported
+     */
+    private static final String  PARAM_NOCOOKIEMESSAGEKEY  = "noCookieMessageKey";
+    /**
+     * Message key when cookies are not supported
+     */
+    private String noCookieMessageKey = null;
+    /**
+     * Filter parameter that, if present, indicates whether the user should be
+     * redirected to remove the gateway parameter from the query
+     * string.
+     */
+    private static final String  PARAM_REDIRECTAFTERGATEWWAY  = "redirectAfterGateway";
+    /**
+     * Specify whether the filter should redirect the user agent after a
+     * successful validation to remove the gateway parameter from the query
+     * string.
+     */
+    private boolean redirectAfterGateway = false;
+
     /**
      *
      * {@inheritDoc}
@@ -73,10 +103,35 @@ public class LuteceCASFilter implements Filter
      * {@inheritDoc}
      */
     @Override
-    public void doFilter( ServletRequest servletRequest, ServletResponse response, FilterChain chain )
+    public void doFilter( ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain )
         throws IOException, ServletException
     {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+        Boolean attrSupportsCookies = ( Boolean ) request.getAttribute( ParameterGatewayResolver.ATTR_SUPPORTS_COOKIES );
+        if ( attrSupportsCookies != null && !attrSupportsCookies.booleanValue() && noCookieMessageKey != null )
+        {
+        	// cookies are blocked
+        	try
+        	{
+                SiteMessageService.setMessage(request, noCookieMessageKey, SiteMessage.TYPE_ERROR);
+            } catch ( SiteMessageException e )
+        	{
+                request.getSession( true ).setAttribute( DefaultGatewayResolverImpl.CONST_CAS_GATEWAY, "yes" );
+                response.sendRedirect(
+                        response.encodeRedirectURL( AppPathService.getSiteMessageUrl( request ) ) );
+                return;
+            }	
+        }
+        if ( redirectAfterGateway && request.getParameter( ParameterGatewayResolver.PARAM_GATEWAY ) != null )
+        {
+        	String url = constructServiceURL(request);
+        	request.getSession( true ).setAttribute( DefaultGatewayResolverImpl.CONST_CAS_GATEWAY, "yes" );
+        	response.sendRedirect( response.encodeRedirectURL( url ) );
+        	return;
+        }
+        
         LuteceUser user = SecurityService.getInstance(  ).getRegisteredUser( request );
 
         if ( user == null )
@@ -108,6 +163,33 @@ public class LuteceCASFilter implements Filter
         chain.doFilter( servletRequest, response );
     }
 
+	/**
+	 * Constructs the service URL, removing the gateway parameter
+	 * @param request the request
+	 * @return the service url
+	 */
+	private String constructServiceURL(HttpServletRequest request) {
+		StringBuffer url = request.getRequestURL( );
+		@SuppressWarnings("unchecked")
+		Enumeration<String> paramNames = request.getParameterNames( );
+		boolean firstParamater = true;
+		while ( paramNames.hasMoreElements( ) ) {
+			String param = paramNames.nextElement( );
+			if ( !param.equals( ParameterGatewayResolver.PARAM_GATEWAY ) )
+			{
+				if ( firstParamater )
+				{
+					url.append( '?' );
+					firstParamater = false;
+				} else {
+					url.append('&');
+				}
+				url.append( param ).append( '=' ).append( request.getParameter( param ) );
+			}
+		}
+		return url.toString();
+	}
+
     /**
      *
      * {@inheritDoc}
@@ -115,6 +197,8 @@ public class LuteceCASFilter implements Filter
     @Override
     public void init( FilterConfig config ) throws ServletException
     {
-        // nothing
+    	noCookieMessageKey = config.getInitParameter( PARAM_NOCOOKIEMESSAGEKEY );
+    	String paramRedirect = config.getInitParameter( PARAM_REDIRECTAFTERGATEWWAY );
+    	redirectAfterGateway = paramRedirect != null && Boolean.parseBoolean( paramRedirect );
     }
 }
