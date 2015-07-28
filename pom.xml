@@ -10,7 +10,7 @@
 	<packaging>lutece-plugin</packaging>
 	<name>Lutece mylutece cas module</name>
 	<version>1.1.11-SNAPSHOT</version>
-	<description />
+	<description/>
 
 	<repositories>
 		<repository>
