@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?><plug-in>
+<?xml version="1.0" encoding="UTF-8"?><plug-in>
 	<name>mylutece-cas</name>
 	<class>fr.paris.lutece.plugins.mylutece.modules.cas.service.CASPlugin
 	</class>
-	<version>1.2.1-SNAPSHOT</version>
+	<version>1.2.1</version>
 	<description>module.mylutece.cas.module.description</description>
 	<documentation/>
 	<installation/>
