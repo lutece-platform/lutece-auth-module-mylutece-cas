@@ -2,7 +2,7 @@
 	<name>mylutece-cas</name>
 	<class>fr.paris.lutece.plugins.mylutece.modules.cas.service.CASPlugin
 	</class>
-	<version>1.2.1</version>
+	<version>1.2.2-SNAPSHOT</version>
 	<description>module.mylutece.cas.module.description</description>
 	<documentation/>
 	<installation/>
