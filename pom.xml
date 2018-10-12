@@ -31,9 +31,9 @@
 		</repository>
 		<!-- provides org.opensaml:opensaml:jar:1.1b -->
 		<repository>
-			<id>jasig-repository</id>
-			<name>JA-SIG Maven2 Repository</name>
-			<url>http://developer.ja-sig.org/maven2</url>
+			<id>spring-plugins-repository</id>
+			<name>Spring Plugins Repository</name>
+            <url>http://repo.spring.io/plugins-release/</url>
 		</repository>
 	</repositories>
 
