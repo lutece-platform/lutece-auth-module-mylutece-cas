@@ -266,11 +266,14 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
      */
     public LuteceUser getHttpAuthenticatedUser( HttpServletRequest request )
     {
-    	LuteceUser user=null;
-    	try {
-    		user=getCasAuthenticatedUser(request);
-		} catch (CASAuthenticationException e) {
-		
+    	LuteceUser user = null;
+    	try
+    	{
+    		user = getCasAuthenticatedUser( request );
+		}
+    	catch ( CASAuthenticationException e )
+    	{
+    		AppLogService.error( e.getMessage( ), e );
 		}
 	
 		 
