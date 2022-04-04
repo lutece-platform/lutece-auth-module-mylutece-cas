@@ -41,6 +41,6 @@ public class DefaultCASUserKeyService implements ICASUserKeyService
      */
     public String getKey( String strPrincipalUserName, Object objectKey )
     {
-        return (String) objectKey;
+        return ( String ) objectKey;
     }
 }
