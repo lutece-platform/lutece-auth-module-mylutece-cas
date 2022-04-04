@@ -143,11 +143,7 @@ public class LuteceCASFilter implements Filter
             {
                 user = casAuthentication.login( "", "", request );
             }
-            catch ( LoginException e )
-            {
-                AppLogService.error( e.getMessage(  ), e );
-            }
-            catch ( LoginRedirectException e )
+            catch ( LoginException | LoginRedirectException e)
             {
                 AppLogService.error( e.getMessage(  ), e );
             }
