@@ -49,12 +49,13 @@ public class ParameterGatewayResolver implements GatewayResolver {
 
 	public static final String PARAM_GATEWAY = "g";
 	public static final String ATTR_SUPPORTS_COOKIES = "mylutece-cas.supports-cookies";
+	private static final String PARAM_YES = "yes";
 
 	@Override
 	public boolean hasGatewayedAlready( HttpServletRequest request,
 			String serviceUrl )
 	{
-		final HttpSession session = request.getSession(false);
+		final HttpSession session = request.getSession( false );
 		
 		if ( session == null )
 		{
@@ -84,10 +85,10 @@ public class ParameterGatewayResolver implements GatewayResolver {
 			String serviceUrl )
 	{
 		HttpSession session = request.getSession( true );
-		session.setAttribute( DefaultGatewayResolverImpl.CONST_CAS_GATEWAY, "yes" );
-		if ( session.getAttribute( ATTR_SUPPORTS_COOKIES) == null )
+		session.setAttribute( DefaultGatewayResolverImpl.CONST_CAS_GATEWAY, PARAM_YES );
+		if ( session.getAttribute( ATTR_SUPPORTS_COOKIES ) == null )
 		{
-			return serviceUrl + (serviceUrl.indexOf( '?' ) != -1 ? "&" : "?") + PARAM_GATEWAY + "=t";
+			return serviceUrl + (serviceUrl.indexOf( "?" ) != -1 ? "&" : "?" ) + PARAM_GATEWAY + "=t";
 		}
 		return serviceUrl;
 	}

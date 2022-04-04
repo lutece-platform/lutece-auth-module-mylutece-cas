@@ -42,7 +42,12 @@ import fr.paris.lutece.portal.service.security.LuteceUser;
  */
 public class CASUser extends LuteceUser
 {
-    /**
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4060631874794425197L;
+
+	/**
      * Constructor
      *
      * @param strUserName

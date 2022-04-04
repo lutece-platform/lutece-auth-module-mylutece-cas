@@ -70,7 +70,7 @@ public class LuteceCASFilter implements Filter
      * Filter parameter that, if present, indicates that a message should be displayed
      * if cookies are not supported
      */
-    private static final String  PARAM_NOCOOKIEMESSAGEKEY  = "noCookieMessageKey";
+    private static final String PARAM_NOCOOKIEMESSAGEKEY  = "noCookieMessageKey";
     /**
      * Message key when cookies are not supported
      */
@@ -80,7 +80,8 @@ public class LuteceCASFilter implements Filter
      * redirected to remove the gateway parameter from the query
      * string.
      */
-    private static final String  PARAM_REDIRECTAFTERGATEWWAY  = "redirectAfterGateway";
+    private static final String PARAM_REDIRECTAFTERGATEWWAY  = "redirectAfterGateway";
+    private static final String PARAM_YES = "yes";
     /**
      * Specify whether the filter should redirect the user agent after a
      * successful validation to remove the gateway parameter from the query
@@ -115,10 +116,10 @@ public class LuteceCASFilter implements Filter
         	// cookies are blocked
         	try
         	{
-                SiteMessageService.setMessage(request, noCookieMessageKey, SiteMessage.TYPE_ERROR);
+                SiteMessageService.setMessage( request, noCookieMessageKey, SiteMessage.TYPE_ERROR );
             } catch ( SiteMessageException e )
         	{
-                request.getSession( true ).setAttribute( DefaultGatewayResolverImpl.CONST_CAS_GATEWAY, "yes" );
+                request.getSession( true ).setAttribute( DefaultGatewayResolverImpl.CONST_CAS_GATEWAY, PARAM_YES );
                 response.sendRedirect(
                         response.encodeRedirectURL( AppPathService.getSiteMessageUrl( request ) ) );
                 return;
@@ -127,7 +128,7 @@ public class LuteceCASFilter implements Filter
         if ( redirectAfterGateway && request.getParameter( ParameterGatewayResolver.PARAM_GATEWAY ) != null )
         {
         	String url = constructServiceURL(request);
-        	request.getSession( true ).setAttribute( DefaultGatewayResolverImpl.CONST_CAS_GATEWAY, "yes" );
+        	request.getSession( true ).setAttribute( DefaultGatewayResolverImpl.CONST_CAS_GATEWAY, PARAM_YES );
         	response.sendRedirect( response.encodeRedirectURL( url ) );
         	return;
         }
@@ -166,7 +167,6 @@ public class LuteceCASFilter implements Filter
 	 */
 	private String constructServiceURL(HttpServletRequest request) {
 		StringBuffer url = request.getRequestURL( );
-		@SuppressWarnings("unchecked")
 		Enumeration<String> paramNames = request.getParameterNames( );
 		boolean firstParamater = true;
 		while ( paramNames.hasMoreElements( ) ) {
@@ -175,15 +175,15 @@ public class LuteceCASFilter implements Filter
 			{
 				if ( firstParamater )
 				{
-					url.append( '?' );
+					url.append( "?" );
 					firstParamater = false;
 				} else {
-					url.append('&');
+					url.append( "&" );
 				}
-				url.append( param ).append( '=' ).append( request.getParameter( param ) );
+				url.append( param ).append( "=" ).append( request.getParameter( param ) );
 			}
 		}
-		return url.toString();
+		return url.toString( );
 	}
 
     /**

@@ -71,8 +71,7 @@ public final class CASService
      */
     public void init(  )
     {
-        CASAuthentication authentication = (CASAuthentication) SpringContextService.getPluginBean( CASPlugin.PLUGIN_NAME,
-                AUTHENTICATION_BEAN_NAME );
+        CASAuthentication authentication = ( CASAuthentication ) SpringContextService.getBean( AUTHENTICATION_BEAN_NAME );
 
         if ( authentication != null )
         {

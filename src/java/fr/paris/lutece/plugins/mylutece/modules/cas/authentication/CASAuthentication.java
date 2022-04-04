@@ -131,7 +131,7 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
         }
 
         String strUserMappingAttributes = AppPropertiesService.getProperty( PROPERTY_USER_MAPPING_ATTRIBUTES );
-        ATTRIBUTE_USER_MAPPING = new HashMap<String, String>(  );
+        ATTRIBUTE_USER_MAPPING = new HashMap<>(  );
 
         if ( StringUtils.isNotBlank( strUserMappingAttributes ) )
         {
@@ -151,7 +151,7 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
         }
 
         String strUserMandatoryAttributes = AppPropertiesService.getProperty( PROPERTY_USER_MANDATORY_ATTRIBUTES );
-        USER_MANDATORY_ATTRIBUTES = new HashMap<String, String>(  );
+        USER_MANDATORY_ATTRIBUTES = new HashMap<>(  );
 
         if ( StringUtils.isNotBlank( strUserMandatoryAttributes ) )
         {
@@ -167,7 +167,7 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
         }
 
         String strRolesAssociations = AppPropertiesService.getProperty( PROPERTY_ROLES_ASSOCIATIONS );
-        ROLES_ASSOCIATIONS = new HashMap<String, List<String>>(  );
+        ROLES_ASSOCIATIONS = new HashMap<>(  );
 
         if ( StringUtils.isNotBlank( strRolesAssociations ) )
         {
@@ -302,7 +302,7 @@ public class CASAuthentication extends PortalAuthentication implements Serializa
             if ( strCASUserLogin != null )
             {
                 CASUser user = new CASUser( strCASUserLogin, this );
-                List<String> listRoles = new ArrayList<String>(  );
+                List<String> listRoles = new ArrayList<>(  );
 
                 if ( StringUtils.isNotBlank( getDefaultRoleName(  ) ) )
                 {
