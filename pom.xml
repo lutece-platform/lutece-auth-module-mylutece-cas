@@ -29,12 +29,6 @@
 			<url>http://dev.lutece.paris.fr/maven_repository</url>
 			<layout>default</layout>
 		</repository>
-		<!-- provides org.opensaml:opensaml:jar:1.1b -->
-		<repository>
-			<id>spring-plugins-repository</id>
-			<name>Spring Plugins Repository</name>
-            <url>https://repo.spring.io/plugins-release/</url>
-		</repository>
 	</repositories>
 
 	<dependencies>
