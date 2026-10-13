@@ -33,6 +33,10 @@
  */
 package fr.paris.lutece.plugins.mylutece.modules.cas.service;
 
+/**
+ * Builds the Lutece user name from the CAS principal. The default is {@link DefaultCASUserKeyService}; a site replaces
+ * it with a CDI bean annotated {@code @Alternative} and {@code @Priority}.
+ */
 public interface ICASUserKeyService
 {
     /**

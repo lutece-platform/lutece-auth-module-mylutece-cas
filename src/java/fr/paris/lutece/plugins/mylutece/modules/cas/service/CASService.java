@@ -35,51 +35,35 @@ package fr.paris.lutece.plugins.mylutece.modules.cas.service;
 
 import fr.paris.lutece.plugins.mylutece.authentication.MultiLuteceAuthentication;
 import fr.paris.lutece.plugins.mylutece.modules.cas.authentication.CASAuthentication;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
-import fr.paris.lutece.portal.service.util.AppLogService;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.ServletContext;
 
 /**
- *
- * WebServerService
+ * Registers the CAS authentication when the application starts.
  */
-public final class CASService
+@ApplicationScoped
+public class CASService
 {
-    private static final String AUTHENTICATION_BEAN_NAME = "mylutece-cas.authentication";
-    private static final CASService _singleton = new CASService(  );
+    public static final String PLUGIN_NAME = "mylutece-cas";
+    public static final String AUTHENTICATION_BEAN_NAME = "mylutece-cas.authentication";
+
+    @Inject
+    @Named( AUTHENTICATION_BEAN_NAME )
+    private CASAuthentication _authentication;
 
     /**
-     * Empty constructor
+     * Registers the CAS authentication.
+     *
+     * @param context
+     *            the servlet context
      */
-    private CASService(  )
+    public void initializedService( @Observes @Initialized( ApplicationScoped.class ) ServletContext context )
     {
-        // nothing
-    }
-
-    /**
-     * Gets the instance
-     * @return the instance
-     */
-    public static CASService getInstance(  )
-    {
-        return _singleton;
-    }
-
-    /**
-     * Inits plugin.
-     * Registers authentication
-     */
-    public void init(  )
-    {
-        CASAuthentication authentication = ( CASAuthentication ) SpringContextService.getBean( AUTHENTICATION_BEAN_NAME );
-
-        if ( authentication != null )
-        {
-            MultiLuteceAuthentication.registerAuthentication( authentication );
-        }
-        else
-        {
-            AppLogService.error( "CASAuthentication not found, please check your cas_context.xml configuration" );
-        }
+        MultiLuteceAuthentication.registerAuthentication( _authentication );
     }
 }
