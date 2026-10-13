@@ -33,12 +33,18 @@
  */
 package fr.paris.lutece.plugins.mylutece.modules.cas.service;
 
+import jakarta.enterprise.context.ApplicationScoped;
+
+/**
+ * Returns the CAS attribute value as the user key.
+ */
+@ApplicationScoped
 public class DefaultCASUserKeyService implements ICASUserKeyService
 {
-    /*
-     * (non-Javadoc)
-     * @see fr.paris.lutece.plugins.mylutece.modules.cas.service.ICASUserKeyService#getKey(java.lang.Object)
+    /**
+     * {@inheritDoc}
      */
+    @Override
     public String getKey( String strPrincipalUserName, Object objectKey )
     {
         return ( String ) objectKey;

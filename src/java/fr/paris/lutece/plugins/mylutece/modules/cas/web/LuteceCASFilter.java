@@ -34,13 +34,13 @@
 package fr.paris.lutece.plugins.mylutece.modules.cas.web;
 
 import fr.paris.lutece.plugins.mylutece.modules.cas.authentication.CASAuthentication;
+import fr.paris.lutece.plugins.mylutece.modules.cas.service.CASService;
 import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.message.SiteMessageService;
 import fr.paris.lutece.portal.service.security.LoginRedirectException;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.SecurityService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 
@@ -48,16 +48,19 @@ import java.io.IOException;
 import java.util.Enumeration;
 
 import javax.security.auth.login.LoginException;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.jasig.cas.client.authentication.DefaultGatewayResolverImpl;
+import jakarta.enterprise.inject.literal.NamedLiteral;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apereo.cas.client.authentication.DefaultGatewayResolverImpl;
 
 
 /**
@@ -96,7 +99,6 @@ public class LuteceCASFilter implements Filter
     @Override
     public void destroy(  )
     {
-        // nothing
     }
 
     /**
@@ -113,7 +115,6 @@ public class LuteceCASFilter implements Filter
         Boolean attrSupportsCookies = ( Boolean ) request.getAttribute( ParameterGatewayResolver.ATTR_SUPPORTS_COOKIES );
         if ( attrSupportsCookies != null && !attrSupportsCookies.booleanValue() && noCookieMessageKey != null )
         {
-        	// cookies are blocked
         	try
         	{
                 SiteMessageService.setMessage( request, noCookieMessageKey, SiteMessage.TYPE_ERROR );
@@ -137,8 +138,8 @@ public class LuteceCASFilter implements Filter
 
         if ( user == null )
         {
-            CASAuthentication casAuthentication = (CASAuthentication) SpringContextService.getBean( 
-                    "mylutece-cas.authentication" );
+            CASAuthentication casAuthentication = CDI.current( ).select( CASAuthentication.class,
+                    NamedLiteral.of( CASService.AUTHENTICATION_BEAN_NAME ) ).get( );
 
             try
             {
@@ -149,10 +150,7 @@ public class LuteceCASFilter implements Filter
                 AppLogService.error( e.getMessage(  ), e );
             }
 
-            if ( AppLogService.isDebugEnabled(  ) )
-            {
-                AppLogService.debug( "User " + user + " logged" );
-            }
+            AppLogService.debug( "User {} logged", user );
 
             SecurityService.getInstance(  ).registerUser( request, user );
         }

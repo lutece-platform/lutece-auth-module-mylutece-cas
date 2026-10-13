@@ -33,11 +33,11 @@
  */
 package fr.paris.lutece.plugins.mylutece.modules.cas.web;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
-import org.jasig.cas.client.authentication.DefaultGatewayResolverImpl;
-import org.jasig.cas.client.authentication.GatewayResolver;
+import org.apereo.cas.client.authentication.DefaultGatewayResolverImpl;
+import org.apereo.cas.client.authentication.GatewayResolver;
 
 /**
  * This class is similar to the DefaultGatewayResolverImpl, but it adds a parameter
